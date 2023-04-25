@@ -154,7 +154,10 @@ router.post('/', verifyToken, async (req, res) => {
     const monkey = new Monkey({
         name: req.body.name,
         age: req.body.age,
-        cool: req.body.cool
+        cool: req.body.cool,
+        speed: req.body.speed,
+        intelligence: req.body.intelligence,
+        strength: req.body.strength,
     });
 
     try {
@@ -173,7 +176,10 @@ router.put('/:id', verifyToken, async (req, res) => {
                 $set: {
                     name: req.body.name,
                     age: req.body.age,
-                    cool: req.body.cool
+                    cool: req.body.cool,
+                    speed: req.body.speed,
+                    intelligence: req.body.intelligence,
+                    strength: req.body.strength,
                 }
             }
         );
@@ -192,6 +198,134 @@ router.delete('/:id', verifyToken, async (req, res) => {
     }
 });
 
+
+router.post('/breed', verifyToken, async (req, res) => {
+    try {
+      const parent1 = await Monkey.findById(req.body.parentId1);
+      const parent2 = await Monkey.findById(req.body.parentId2);
+  
+      if (!parent1 || !parent2) {
+        return res.status(400).send('Les parents ne sont pas valides.');
+      }
+  
+      const child = breed(parent1, parent2);
+      const savedChild = await child.save();
+  
+      res.status(201).json(savedChild);
+    } catch (err) {
+      res.status(500).send(err.message);
+    }
+  });
+
+  router.post('/fight', verifyToken, async (req, res) => {
+    try {
+        const parent1 = await Monkey.findById(req.body.parentId1);
+        const parent2 = await Monkey.findById(req.body.parentId2);
+    
+        if (!parent1 || !parent2) {
+          return res.status(400).send('Les parents ne sont pas valides.');
+        }
+    
+        const fight = fight(parent1, parent2);
+
+        res.status(201).json(fight);
+
+      } catch (err) {
+        res.status(500).send(err.message);
+      }
+    });
+
+  
+
 module.exports = router;
 
 // Path: routes\monkeys.js
+
+
+function breed(parent1, parent2) {
+    const randomModifier = () => Math.floor(Math.random() * 21) - 10;
+
+    // reproduction possible si les parents ont un age inférieur à 20 ans
+    if (parent1.age >= 20 || parent2.age >= 20) {
+        throw new Error('Les parents sont trop vieux pour se reproduire.');
+    }
+    else if (parent1._id === parent2._id) {
+        throw new Error('Les parents sont les mêmes.');
+    }
+    else if (parent1.cool === false && parent2.cool === false) {
+        throw new Error('Les parents ne sont pas cool et ne s\'attirent pas.');
+    }
+
+    const child = new Monkey({
+      name: generateUniqueName(),
+      age: 0,
+      cool: parent1.cool && parent2.cool,
+      strength: ((parent1.strength + parent2.strength) / 2) + randomModifier(),
+      intelligence: ((parent1.intelligence + parent2.intelligence) / 2) + randomModifier(),
+      speed: ((parent1.speed + parent2.speed) / 2) + randomModifier(),
+      parentId1: parent1._id,
+      parentId2: parent2._id,
+    });
+
+    // vieillissement des parents
+    parent1.age += 1;
+    parent2.age += 1;
+    parent1.save();
+    parent2.save();
+  
+    return child;
+  }
+
+
+  function fight(monkey1, monkey2)
+    {
+        const randomModifier = () => Math.floor(Math.random() * 21) - 10;
+    
+        // combat possible si les singes ont un age supérieur à 10 ans
+        if (monkey1.age < 10 || monkey2.age < 10) {
+            throw new Error('Les singes sont trop jeunes pour se battre.');
+        }
+        else if (monkey1._id === monkey2._id) {
+            throw new Error('Les singes sont les mêmes.');
+        }
+    
+        // calcul des points de vie des singes
+        const monkey1Life = monkey1.strength + monkey1.intelligence + monkey1.speed + randomModifier();
+        const monkey2Life = monkey2.strength + monkey2.intelligence + monkey2.speed + randomModifier();
+    
+        // calcul du vainqueur et suppression du perdant
+        if (monkey1Life > monkey2Life) {
+            monkey2.remove();
+            return monkey1;
+        }
+        else if (monkey1Life < monkey2Life) {
+            monkey1.remove();
+            return monkey2;
+        }
+        else {
+            throw new Error('Les singes ont fait match nul.');
+        }
+    }
+  
+
+  function generateUniqueName() {
+    const voyelleTab = ['a', 'e', 'i', 'o', 'u', 'y'];
+    const consonneTab = ['b', 'c', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'm', 'n', 'p', 'q', 'r', 's', 't', 'v', 'w', 'x', 'z'];
+    let name = '';
+
+    // génération un nombre aléatoire entre 2 et 10
+    const length = Math.floor(Math.random() * 9) + 2;
+
+    // génération d'un nom alternant voyelle et consonne
+    for (let i = 0; i < length; i++) {
+        if (i % 2 === 0) {
+            name += consonneTab[Math.floor(Math.random() * consonneTab.length)];
+        } else {
+            name += voyelleTab[Math.floor(Math.random() * voyelleTab.length)];
+        }
+        }
+
+    return name;
+}
+
+  
