@@ -5,7 +5,7 @@ Cette API permet de gérer les singes, leurs caractéristiques et de les reprodu
 ## Installation
 
 1. Clonez le dépôt :
-git clone https://github.com/username/monkey-api.git
+git clone https://github.com/nathanddrl/monkey-api.git
 
 
 2. Installez les dépendances :
