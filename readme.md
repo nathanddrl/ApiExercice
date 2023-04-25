@@ -1,3 +1,5 @@
+Nathan Dudreuil
+
 # Monkey Breeding API
 
 Cette API permet de gérer les singes, leurs caractéristiques et de les reproduire pour obtenir des singes avec de meilleures caractéristiques ainsi que de les faire combattre pour déterminer le meilleur singe.
@@ -49,3 +51,9 @@ node app.js
 - `POST /auth/login` : Connecte un utilisateur existant
 
 
+### Potentielles améliorations
+
+- pagination 
+- filtres
+- tests unitaires
+- Gestion des erreurs
