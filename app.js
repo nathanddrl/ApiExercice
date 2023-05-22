@@ -34,8 +34,8 @@ app.use('/api/users', userRoutes);
 app.use('/api/monkey', monkeyRoutes);
 
 // Démarrez le serveur
-app.listen(process.env.PORT || 3000, () => {
-   console.log('Serveur en écoute sur le port 3000');
+app.listen(process.env.PORT || 8000, () => {
+   console.log('Serveur en écoute sur le port 8000');
 });
 
 // Configurez Swagger
